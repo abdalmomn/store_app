@@ -92,18 +92,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Wishlist::class);
     }
-
-
-//    public function referral()
-//    {
-//        return $this->hasOne(Referral::class);
-//    }
-
-//    public function referred()
-//    {
-//        return $this->belongsTo(Reffered::class , 'referred_user_id');
-//    }
-
 //    public function personalAccessTokens()
 //    {
 //        return $this->hasMany(PersonalAccessToken::class, 'tokenable_id');
