@@ -9,10 +9,8 @@ use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\ResetPassword\CheckCodeRequest;
 use App\Http\Requests\ResetPassword\ForgetPasswordRequest;
 use App\Http\Requests\ResetPassword\ResetPasswordRequest;
-use App\Http\Requests\ResetPassword\SendEmailRequest;
 use App\Http\Responses\Response;
 use App\Jobs\SendResetCodeEmail;
-use App\Mail\ResetPasswordMail;
 use App\Models\ResetCodePassword;
 use App\Models\User;
 use App\Repositories\ProfileRepositoryInterface;
@@ -21,10 +19,8 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
@@ -43,7 +39,9 @@ class AuthController extends Controller
     {
         $data = [];
         try {
-            $data = $this->userService->register_as_client($request->validated());
+            $data = $request->validated();
+            $data['password'] = Hash::make($request['password']);
+            $data = $this->userService->register_as_client($data);
             return Response::Success($data['user'] , $data['message']);
         }catch (Throwable $th){
             $message = $th->getMessage();
@@ -54,7 +52,9 @@ class AuthController extends Controller
     {
         $data = [];
         try {
-            $data = $this->userService->register_as_seller($request->validated());
+            $data = $request->validated();
+            $data['password'] = Hash::make($request['password']);
+            $data = $this->userService->register_as_seller($data);
             return Response::Success($data['user'] , $data['message']);
         }catch (Throwable $th){
             $message = $th->getMessage();
@@ -323,17 +323,16 @@ class AuthController extends Controller
         }
     }
 
-    public function update_profile($id, UpdateProfileRequest $request):JsonResponse
+    public function update_profile(UpdateProfileRequest $request):JsonResponse
     {
+        $user = Auth::user();
         $data = [];
         try {
             $data =  $request->validated();
-            if ($request->hasFile('profile_photo_path')) {
                 $imagePath = $request->file('profile_photo_path')->store('images', 'public');
                 $imageUrl = Storage::disk('public')->path($imagePath);
                 $data['profile_photo_path'] = $imageUrl;
-            }
-            $data = $this->profileRepository->update_profile($id,$data);
+            $data = $this->profileRepository->update_profile($user,$data);
             return Response::Success($data['user'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
@@ -349,6 +348,19 @@ class AuthController extends Controller
             $data = $this->profileRepository->update_password($user, $request->new_password);
             return Response::Success($data['user'],$data['message']);
         }catch (Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
+
+    public function delete_my_profile(): JsonResponse
+    {
+        $data = [];
+        try {
+            $user = Auth::user();
+            $data = $this->profileRepository->delete_my_profile($user);
+            return Response::Success($data['user'],$data['message']);
+        }catch(Exception $e){
             $message = $e->getMessage();
             return Response::Error($data,$message);
         }

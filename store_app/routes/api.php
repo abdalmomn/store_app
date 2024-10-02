@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,15 +40,40 @@ Route::controller(AuthController::class)->group(function (){
         Route::prefix('profile')->group(function (){
         Route::get('/all' , 'show_all_profiles');
         Route::get('/show/{id}' , 'show_user_profile');
-        Route::post('/update/{id}' , 'update_profile');
+        Route::post('/update' , 'update_profile');
         Route::post('password/update' , 'update_password');
+        Route::delete('/delete' , 'delete_my_profile');
         Route::delete('/delete/{id}' , 'delete_profile');
-      });
+        });
     });
 });
-
 
 Route::post('/email/verification-notification' , function (Request $request){
         $request->user()->sendEmailVerificationNotification();
     return response()->json(['message' => 'new verification link sent!']);
 })->middleware(['auth:sanctum' , 'throttle:6,1'])->name('verification.send');
+
+Route::controller(CartController::class)
+    ->middleware('auth:sanctum')->group(function (){
+    Route::get('/cart', 'show_cart');
+    Route::delete('/cart/delete/{product_id}', 'delete_from_cart');
+    Route::post('/add_to_cart/{product_id}', 'add_to_cart');
+});
+
+
+Route::controller(OrderController::class)
+    ->middleware('auth:sanctum')->group(function(){
+        Route::post('/save_address','save_address');
+        Route::post('/make_primary/{address_id}','make_primary');
+        Route::get('/show_addresses','show_addresses');
+        Route::post('/edit_address/{address_id}','edit_address');
+        Route::delete('/delete_address/{address_id}','delete_address');
+    });
+
+Route::controller(WishlistController::class)
+    ->middleware('auth:sanctum')->group(function(){
+       Route::post('/add_product_to_wishlist/{product_id}' , 'add_product_to_wishlist');
+       Route::post('/add_offer_to_wishlist/{offer_id}' , 'add_offer_to_wishlist');
+       Route::get('/show_wishlist' , 'show_wishlist');
+       Route::delete('/remove_from_wishlist/{id}' , 'remove_from_wishlist');
+    });

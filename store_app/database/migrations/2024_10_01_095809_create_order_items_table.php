@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('referrals', function (Blueprint $table) {
+        Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('referrer_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('referral_code')->constrained('users')->cascadeOnDelete();
-
+            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->integer('quantity');
+            $table->decimal('total_price' , 10 , 2);
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('referrals');
+        Schema::dropIfExists('order_items');
     }
 };

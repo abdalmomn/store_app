@@ -16,37 +16,43 @@ class ProfileRepository implements ProfileRepositoryInterface
     }
     public function show_all_profiles():array
     {
-        /*
-            for 10000 users:
-            users: 50 user per page
-            speed: about 200ms for every page
-            memory usage: 10kb for every page
-            same fast but better efficient for memory
-        */
-        $users = User::query()
-            ->select('id' , 'name' , 'email', 'profile_photo_path' , 'referral_code', 'referred_by_code')
-            ->paginate(50);
+        if (Auth::user()->hasRole('admin')) {
 
-        /*
-            for 10000 users:
-            users: all users together
-            speed: about 200ms total
-            memory usage: 1.25mb for all users
-            can't append roles in the result
-        */
-//        $users = DB::table('users')
-//            ->select('id' , 'name' , 'email' , 'profile_photo_path' , 'referral_code', 'referred_by_code')
-//            ->get();
+                /*
+                    for 10000 users:
+                    users: 50 user per page
+                    speed: about 200ms for every page
+                    memory usage: 10kb for every page
+                    same fast but better efficient for memory
+                */
+            $users = User::query()
+                ->select('id' , 'name' , 'email', 'profile_photo_path' , 'referral_code', 'referred_by_code')
+                ->paginate(50);
 
-        if (!is_null($users)){
-            foreach ($users as $user) {
-                $user->load('roles', 'permissions');
-                $user = $this->userService->appendRolesAndPermissions($user);
+            /*
+                for 10000 users:
+                users: all users together
+                speed: about 200ms total
+                memory usage: 1.25mb for all users
+                can't append roles in the result
+            */
+    //        $users = DB::table('users')
+    //            ->select('id' , 'name' , 'email' , 'profile_photo_path' , 'referral_code', 'referred_by_code')
+    //            ->get();
+
+            if ($users){
+                    foreach ($users as $user) {
+                        $user->load('roles', 'permissions');
+                        $user = $this->userService->appendRolesAndPermissions($user);
+                    }
+                    $message = 'getting all users successfully';
+            }else{
+                $users = null;
+                $message = 'there is no users at the moment';
             }
-            $message = 'getting all users successfully';
         }else{
             $users = null;
-            $message = 'there is no users at the moment';
+            $message = 'only admin can reach for this page';
         }
         return [
             'users' => $users,
@@ -73,31 +79,19 @@ class ProfileRepository implements ProfileRepositoryInterface
         ];
     }
 
-    public function update_profile($id, $request):array
+    public function update_profile($user, $data):array
     {
-        //handle image
-
-        $user = User::query()->find($id);
-
-        if ($user) {
-            User::query()->where('id' , $id)->update([
-                'name' => $request['name'] ?? $user['name'],
-                'email' => $request['email'] ?? $user['email'],
-                'profile_photo_path' => $request['profile_photo_path'] ?? $user['profile_photo_path'],
-            ]);
-            $user = User::query()
-                ->where('id', $id)
-                ->select('id' , 'name' , 'email' , 'profile_photo_path' , 'referral_code', 'referred_by_code')
-                ->first();
+            $user = Auth::user();
+            User::query()
+                ->where('id' , Auth::id())->update($data);
+            $user->refresh();
             $message = 'profile updated successfully';
-        }else{
-            $message = 'user not found';
-        }
         return[
             'user' => $user,
             'message' => $message,
         ];
     }
+
 
     public function update_password($user, $newPassword)
     {
@@ -110,14 +104,32 @@ class ProfileRepository implements ProfileRepositoryInterface
         ];
     }
 
+    public function delete_my_profile($user):array
+    {
+        //should I delete all related data in another tables for this user
+        $user = Auth::user();
+            $user->delete();
+            $message = 'user deleted successfully';
+        return [
+            'user' => $user,
+            'message' => $message,
+        ];
+    }
+
     public function delete_profile($id)
     {
         //should I delete all related data in another tables for this user
         $user = User::query()->find($id);
         if ($user){
+            if (Auth::user()->hasRole('admin')){
             $user->delete();
             $message = 'user deleted successfully';
+            }else{
+                $user = null;
+                $message = 'only admin can reach for this page';
+            }
         }else{
+            $user = null;
             $message = 'user not found';
         }
         return [

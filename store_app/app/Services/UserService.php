@@ -2,10 +2,10 @@
 namespace App\Services;
 
 use App\Mail\ResetPasswordMail;
+use App\Models\Cart;
 use App\Models\ResetCodePassword;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -17,10 +17,10 @@ use Spatie\Permission\Models\Role;
 class UserService{
     public function register_as_client($request):array
     {
-        $user = User::query()->create([
-            'name' => $request['name'],
-            'email' => $request['email'],
-            'password' => Hash::make($request['password']),
+        $user = User::query()->create($request);
+
+        Cart::query()->create([
+           'user_id' => $user->id
         ]);
 
         $clientRole = Role::query()
@@ -31,6 +31,7 @@ class UserService{
 
         $permissions = $clientRole->permissions()->pluck('name')->toArray();
         $user->givePermissionTo($permissions);
+
         //show roles and permissions on response
         $user->load('roles' , 'permissions');
 
@@ -39,7 +40,7 @@ class UserService{
         $user = $this->appendRolesAndPermissions($user);
         $user['token'] = $user->createToken("token")->plainTextToken;
 
-        event(new Registered($user)); // Triggers email verification
+        event(new Registered($user)); // Triggers and queue email verification
 
         $message = 'user has been registered successfully. A verification link has been sent to your email address. Please check your inbox.';
         return [
@@ -50,10 +51,10 @@ class UserService{
 
     public function register_as_seller($request):array
     {
-        $user = User::query()->create([
-            'name' => $request['name'],
-            'email' => $request['email'],
-            'password' => Hash::make($request['password']),
+        $user = User::query()->create($request);
+
+        Cart::query()->create([
+            'user_id' => $user->id
         ]);
 
         $clientRole = Role::query()
@@ -72,7 +73,8 @@ class UserService{
         $user = $this->appendRolesAndPermissions($user);
         $user['token'] = $user->createToken("token")->plainTextToken;
 
-        $message = 'User Created Successfully';
+        event(new Registered($user));
+        $message = 'user has been registered successfully. A verification link has been sent to your email address. Please check your inbox.';
         return [
             'user' => $user,
             'message' => $message,
@@ -159,7 +161,7 @@ class UserService{
                 'code' =>  $code,
                 'email' => $email,
             ]);
-        $message = "You Can Use This code To Reset Password";
+       // $message = "You Can Use This code To Reset Password";
         $subject = 'Reset Password';
         Mail::to($email)->send(new ResetPasswordMail($subject,$code));
         return redirect()->route('password.code')->with('status', 'Reset code has been sent successfully to your email.');
@@ -199,18 +201,18 @@ class UserService{
         if ($resetCode){
             if ($resetCode['created_at'] < now()->addHour()){
                 $resetCode->delete();
-                    $code = '';
-                    $message = 'the code has expired';
+              //      $code = '';
+              //      $message = 'the code has expired';
                 return redirect()->back()->withErrors(['code' => 'This code has expired.']);
             } else{
-                $code = $resetCode;
-                $message = 'the code is correct';
+             //   $code = $resetCode;
+               // $message = 'the code is correct';
                 return redirect()->route('password.reset')->with('status', 'The code is correct, you can now reset your password.');
 
             }
         }else{
-            $code = '';
-            $message = 'Invalid code or email';
+          //  $code = '';
+          //  $message = 'Invalid code or email';
             return redirect()->back()->withErrors(['code' => 'Invalid code or email.']);
         }
 //        return [
@@ -226,8 +228,8 @@ class UserService{
             ->where('email' , $email)
             ->first();
         if (Hash::check($user->password , $request['password'])){
-            $data = '';
-            $message = 'The new password cannot be the same as the old password';
+          //  $data = '';
+          //  $message = 'The new password cannot be the same as the old password';
             return redirect()->back()->withErrors(['password' => 'The new password cannot be the same as the old password.']);
         }else{
             User::query()
@@ -237,8 +239,8 @@ class UserService{
             ResetCodePassword::query()
                 ->where('email' , $email)
                 ->delete();
-            $data = $user;
-            $message = 'New password has been set successfully. You can now log in';
+        //    $data = $user;
+        //    $message = 'New password has been set successfully. You can now log in';
         }
         return redirect()->route('login')->with('status', 'New password has been set successfully. You can now log in.');
         //return [
@@ -250,53 +252,75 @@ class UserService{
 
     public function google_handle_call_back()
     {
-            // Retrieve user from Google
-            $googleUser = Socialite::driver('google')->user();
+        // Retrieve user from Google
+        $googleUser = Socialite::driver('google')->user();
 
-            // Check if the user already exists in the database
-            $findUser = User::where('social_id', $googleUser->id)->first();
+        // Check if the user already exists in the database
+        $findUser = User::where('email', $googleUser->email)->first();
 
-            if ($findUser) {
-                // Log in the existing user
-                Auth::login($findUser);
-                return [
-                    'data' => $findUser,
-                    'message' => 'logged in successfully',
-                ];
-            } else {
-                // Create a new user in the database
-                $user = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
-                    'social_id' => $googleUser->id, // Google ID
+        if ($findUser) {
+            // Update only if needed (Google ID or social type has changed)
+            if ($findUser->social_id !== $googleUser->id || $findUser->social_type !== 'google') {
+                $findUser->update([
+                    'social_id' => $googleUser->id,
                     'social_type' => 'google',
-                    'password' => Hash::make(Str::random(8)),
                 ]);
-
-                $clientRole = Role::query()
-                    ->where('name' , '=' , 'client')
-                    ->first();
-
-                $user->assignRole($clientRole);
-
-                $permissions = $clientRole->permissions()->pluck('name')->toArray();
-                $user->givePermissionTo($permissions);
-                //show roles and permissions on response
-                $user->load('roles' , 'permissions');
-
-                //reload user instance to get updated roles and permissions
-                $user = User::query()->find($user['id']);
-                $user = $this->appendRolesAndPermissions($user);
-                $user['token'] = $user->createToken("token")->plainTextToken;
-
-
-                Auth::login($user);
-                return [
-                    'data' => $user,
-                    'message' => 'logged in successfully',
-                ];
             }
+            $clientRole = Role::query()
+                ->where('name' , '=' , 'client')
+                ->first();
+
+            $findUser->assignRole($clientRole);
+
+            $permissions = $clientRole->permissions()->pluck('name')->toArray();
+            $findUser->givePermissionTo($permissions);
+            //show roles and permissions on response
+            $findUser->load('roles' , 'permissions');
+
+            //reload user instance to get updated roles and permissions
+            $findUser = User::query()->find($findUser['id']);
+            $findUser = $this->appendRolesAndPermissions($findUser);
+            $findUser['token'] = $findUser->createToken("token")->plainTextToken;
+
+            Auth::login($findUser);
+            return [
+                'data' => $findUser,
+                'message' => 'logged in successfully',
+            ];
+        } else {
+            $user = User::create([
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
+                'social_id' => $googleUser->id,
+                'social_type' => 'google',
+                'password' => Hash::make(Str::random(8)),
+            ]);
+
+            $clientRole = Role::query()
+                ->where('name' , '=' , 'client')
+                ->first();
+
+            $user->assignRole($clientRole);
+
+            $permissions = $clientRole->permissions()->pluck('name')->toArray();
+            $user->givePermissionTo($permissions);
+            //show roles and permissions on response
+            $user->load('roles' , 'permissions');
+
+            //reload user instance to get updated roles and permissions
+            $user = User::query()->find($user['id']);
+            $user = $this->appendRolesAndPermissions($user);
+            $user['token'] = $user->createToken("token")->plainTextToken;
+
+            Auth::login($user);
+
+            return [
+                'data' => $user,
+                'message' => 'logged in successfully',
+            ];
+        }
     }
+
 
     public function apple_handle_call_back()
     {

@@ -32,10 +32,18 @@ class Order extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class,'order_product')
-            ->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(Product::class,'order_items')
+            ->withPivot('quantity', 'total_price')->withTimestamps();
     }
 
+    public function payment_method()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
 
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
 
 }

@@ -16,6 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
             $table->foreignId('coupon_id')->constrained('coupons')->cascadeOnDelete();
+            $table->foreignId('address_id')->constrained('addresses')->cascadeOnDelete();
+            $table->foreignId('payment_method_id')->constrained('payment_methods')->cascadeOnDelete();
+            $table->string('shipping_method');
+            $table->decimal('total_price' , 10 ,2);
             $table->timestamps();
         });
     }
