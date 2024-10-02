@@ -6,7 +6,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\CategoryController;
+  use App\Http\Controllers\Api\BrandController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -53,6 +55,7 @@ Route::post('/email/verification-notification' , function (Request $request){
     return response()->json(['message' => 'new verification link sent!']);
 })->middleware(['auth:sanctum' , 'throttle:6,1'])->name('verification.send');
 
+<<<<<<< HEAD
 Route::controller(CartController::class)
     ->middleware('auth:sanctum')->group(function (){
     Route::get('/cart', 'show_cart');
@@ -77,3 +80,33 @@ Route::controller(WishlistController::class)
        Route::get('/show_wishlist' , 'show_wishlist');
        Route::delete('/remove_from_wishlist/{id}' , 'remove_from_wishlist');
     });
+=======
+//crud products
+Route::controller(ProductController::class)->group(function (){
+    Route::get('/all_product' , 'index')->name('get_all_products');
+    Route::post('/create_product' , 'create')->name('create_product');
+    Route::get('/show_product/{id}' , 'show')->name('show_one_product');
+    Route::post('/update_product/{id}' , 'update')->name('update_product');
+    Route::delete('/destroy_product/{id}' , 'destroy')->name('delete_product');
+    Route::post('/search/product' , 'search')->name('search_product');
+    Route::get('/getPopular/{id}' , 'getPopular')->name('getPopular_product');
+    Route::get('/getProductsByCategoryAndBrand/{categoryId}/{brandid?}' , 'getProductsByCategoryAndBrand')->name('getByCategory');
+  });
+Route::controller(CategoryController::class)->group(function (){
+    Route::get('/all_category' , 'index')->name('get_all_categories');
+    Route::post('/create_category' , 'create')->name('create_category');
+    Route::get('/show_category/{id}' , 'show')->name('show_one_category');
+    Route::post('/update_category/{id}' , 'update')->name('update_category');
+    Route::delete('/destroy_category/{id}' , 'destroy')->name('delete_category');
+    Route::post('/search/category' , 'search')->name('search_category');
+  });
+Route::controller(BrandController::class)->group(function (){
+    Route::get('/all_brand' , 'index')->name('get_all_brands');
+    Route::post('/create_brand' , 'create')->name('create_brand');
+    Route::get('/show_brand/{id}' , 'show')->name('show_one_brand');
+    Route::post('/update_brand/{id}' , 'update')->name('update_brand');
+    Route::delete('/destroy_brand/{id}' , 'destroy')->name('delete_brand');
+    Route::post('/search_brand' , 'search')->name('search_brand');
+    Route::get('brands/{category}/by-category', 'getByCategory');
+  });
+>>>>>>> 99d752e5ac699e9a61c43a64083204c5dc693c7d
