@@ -38,17 +38,17 @@ class OrderController extends Controller
             return Response::Error($data,$message);
         }
     }
-    public function show_addresses()
-    {
-        $data = [];
-        try{
-            $data = $this->orderService->show_addresses();
-            return Response::Success($data['addresses'] , $data['message']);
-        }catch(Exception $e){
-            $message  = $e->getMessage();
-            return Response::Error($data,$message);
-        }
-    }
+//    public function show_addresses()
+//    {
+//        $data = [];
+//        try{
+//            $data = $this->orderService->show_addresses();
+//            return Response::Success($data['addresses'] , $data['message']);
+//        }catch(Exception $e){
+//            $message  = $e->getMessage();
+//            return Response::Error($data,$message);
+//        }
+//    }
     public function edit_address($address_id,UpdateAddressRequest $request)
     {
         $data = [];
@@ -66,6 +66,23 @@ class OrderController extends Controller
         try{
             $data = $this->orderService->delete_address($address_id);
             return Response::Success($data['address'] , $data['message']);
+        }catch(Exception $e){
+            $message  = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
+    public function deliver_to_my_address($cart_id)
+    {
+        $data = [];
+        try{
+            $data = $this->orderService->deliver_to_my_address($cart_id);
+            return response()->json([
+                'addresses' => $data['addresses'],
+                'products' => $data['products'],
+                'shipping_methods' => $data['shipping_methods'],
+                'payment_methods' => $data['payment_methods'],
+                'message' => $data['message']
+            ]);
         }catch(Exception $e){
             $message  = $e->getMessage();
             return Response::Error($data,$message);

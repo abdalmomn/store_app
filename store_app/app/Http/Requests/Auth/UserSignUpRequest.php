@@ -28,6 +28,8 @@ class UserSignUpRequest extends FormRequest
             'name' => ['string','required' , 'between:4,20'],
             'email' => ['required' , 'email', 'unique:users'],
             'password' => ['required' , 'confirmed' , 'min:8'],
+            'referral_code' => [],
+            'referred_by_code' => [],
         ];
     }
 

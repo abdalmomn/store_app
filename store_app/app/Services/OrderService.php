@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\PaymentMethod;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -71,6 +72,7 @@ class OrderService{
 //            'message' => $message
 //        ];
 //    }
+
     public function make_primary($address_id)
     {
         $new_primary = Address::query()
@@ -121,20 +123,17 @@ class OrderService{
             'message' => 'address deleted successfully'
         ];
     }
-    public function place_order($cart_id,$request)
+
+    public function deliver_to_my_address($cart_id)
     {
+        //show the address immediately because there is at least one address before go to place order page
         $addresses = Address::query()
             ->where('user_id',Auth::id())
             ->orderBy('primary' , 'desc')
             ->get();
-        if ($addresses){
-            $message = 'getting addresses successfully';
-        }else{
-            $addresses = null;
-            $message = 'not found';
-        }
+
         $cart_items = Cart::with(['products' => function ($query){
-           $query->select('cart_items');
+            $query->select('cart_items.*');
         }])
             ->where('user_id', Auth::id())
             ->first();
@@ -142,6 +141,27 @@ class OrderService{
             ->where('cart_items.cart_id' , $cart_id)
             ->get();
 
+        //$shipping_methods will be local or external delivery
+        $shipping_method = 'local delivery';
+
+        $payment_method = PaymentMethod::all();
+
+        $addresses || $payment_method  ? $message = 'getting all data successfully' : $message = 'not found';
+
+        return [
+            'addresses' => $addresses,
+            'products' => $cart_items,
+            'shipping_methods' => $shipping_method,
+            'payment_methods' => $payment_method,
+            'message' => $message
+        ];
+    }
+
+    public function place_order($request)
+    {
+        //handle payment methods
+        //if($payment_method == ''){
+        //}
     }
 }
 

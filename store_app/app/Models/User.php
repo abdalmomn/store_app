@@ -92,18 +92,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Wishlist::class);
     }
-<<<<<<< HEAD
-
 
     public function addresses()
     {
         return $this->hasMany(Address::class);
     }
-=======
 //    public function personalAccessTokens()
 //    {
 //        return $this->hasMany(PersonalAccessToken::class, 'tokenable_id');
 //    }
 
->>>>>>> 99d752e5ac699e9a61c43a64083204c5dc693c7d
 }

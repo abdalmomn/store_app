@@ -22,8 +22,8 @@ class BrandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|max:40',
-            'category_id' => 'required|exists:categories,id',
+            'name'=>'string|max:40',
+            'category_id' => 'exists:categories,id',
 
         ];
     }

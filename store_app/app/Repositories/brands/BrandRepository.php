@@ -4,102 +4,121 @@ namespace App\Repositories\brands;
 
 use App\Models\Brand;
 use App\Repositories\brands\BrandRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 class BrandRepository implements BrandRepositoryInterface
 {
     public function all()
     {
-        try{
-        $Brand = Brand::query()
+        $brands = Brand::query()
         ->select("name")
         ->paginate(50);
-        if ($Brand->isEmpty()) {
-            return response()->json(['message' => 'No brands found'], 200);
+        if ($brands->isEmpty()) {
+            $message = 'not found';
+        }else{
+            $message = 'getting brands successfully';
         }
-        return response()->json(['success'=>true,'data'=>$Brand,'message'=>"get successful!",200]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'An error occurred while fetching brands'], 500);
-    }
-
+        return [
+            'brands' => $brands,
+            'message' => $message
+        ];
     }
 
     public function find($id)
     {
-        try {
             $brand = Brand::find($id);
             if (!$brand) {
-                return response()->json(['error' => 'Brand not found'], 404);
+                $message = 'not found';
+            }else{
+                $message = 'getting brand successfully';
             }
-            return response()->json(['success'=>true,'data'=>$brand,'message'=>"get successful!"],200);
-        }   catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while fetching the brand'], 500);
-        }
+            return [
+                'brand' => $brand,
+                'message' => $message
+            ];
     }
 
     public function create(array $attributes)
     {
-        try {
+        if (Auth::user()->hasRole('admin')){
             $brand = Brand::create($attributes);
-            return response()->json(['success'=>true,'data'=>$brand,'message'=>"create successful!"],201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while creating the brand'], 400);
-        }    }
+            $message = 'brand created successfully';
+        }else{
+            $brand = null;
+            $message = 'you do not have access';
+        }
+        return [
+            'brand' => $brand,
+            'message' => $message,
+        ];
+    }
 
     public function update($id, array $attributes)
     {
-        try {
             $brand = brand::find($id);
-            if (!$brand) {
-                return response()->json(['error' => 'Brand not found'], 404);
-            }
-            $brand->update($attributes);
-            return response()->json(['success'=>true,'data'=>$brand,'message'=>"update successful!"],200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while updating the brand'], 500);
-        }
 
+            if ($brand) {
+                if (Auth::user()->hasRole('admin')) {
+                    $message = 'brand updated successfully';
+                    $brand->update($attributes);
+                }else{
+                    $brand = null;
+                    $message = 'you do not have access';
+                }
+            }else {
+                $message = 'not found';
+            }
+        return [
+            'brand' => $brand,
+            'message' => $message
+        ];
     }
 
     public function delete($id)
     {
 
-        try {
             $brand = Brand::find($id);
-
-            if ($brand==false) {
-                return response()->json(['error' => 'Brand not found'], 404);
-            }
-
-            $brand->delete();
-            return response()->json(['success'=>true,'message' => 'Brand deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while deleting the brand'], 500);
-        }
+            if ($brand) {
+                if (Auth::user()->hasRole('admin')) {
+                    $brand->delete();
+                    $message = 'brand deleted successfully';
+                }else{
+                    $brand = null;
+                    $message = 'you co not have access';
+                }
+            }else {
+                    $message = 'not found';
+                }
+            return [
+                'brand' => $brand,
+                'message' => $message
+            ];
     }
     public function searchBrand($query)
     {
-        try{
-            $Brand=Brand::where('name', 'like', "%{$query}%")->get();
-            if ($Brand->isEmpty()) {
-                return response()->json(['message' => 'no result found '], 200);
+            $brands=Brand::where('name', 'like', "%{$query}%")->get();
+            if ($brands->isEmpty()) {
+                $message = 'no result';
+            }else{
+                $message = 'getting successfully';
             }
-            return response()->json(['success'=>true,'data'=>$Brand,'message'=>"get successful!"],200);
-        }catch(\Exception $e){
-            return response()->json(['error' => 'An error occurred while do search '], 500);
-
-        }
+            return [
+                'brands' => $brands,
+                'message' => $message
+            ];
     }
-    public function getBrandByCategory($categoryId)
-    {  try{
-        $Brand=Brand::where('category_id', $categoryId)->get();
-        if ($Brand->isEmpty()) {
-            return response()->json(['success'=>true,'message' => 'there isnt any Brands whith this category '], 200);
-        }
-          return response()->json($Brand, 200);
-    }catch(\Exception $e){
-        return response()->json(['error' => 'An error occurred while getBrandsByCategory '], 500);
+    public function getBrandByCategory($categoryId){
 
-    }
+        $brands=Brand::where('category_id', $categoryId)->get();
+        if ($brands->isEmpty()) {
+            $message = 'there is no brand for this category';
+        }else{
+            $message = 'getting brands successfully';
+        }
+        return [
+            'brands' => $brands,
+            'message' => $message
+        ];
     }
 
 

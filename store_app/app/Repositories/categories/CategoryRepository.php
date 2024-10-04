@@ -4,88 +4,95 @@ namespace App\Repositories\categories;
 
 use App\Models\Category;
 use App\Repositories\categories\CategoryRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
     public function all()
     {
-        try{
-        $category = category::query()
+        $categories = category::query()
         ->select("name")
         ->paginate(50);
-        if ($category->isEmpty()) {
-            return response()->json(['message' => 'No categories found'], 200);
-        }
-        return $category;
-        }catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while fetching Category'], 500);
-        }
+
+        $categories ? $message = 'getting all categories successfully' : $message = 'not found';
+        return [
+            'categories' => $categories,
+            'message' => $message
+        ];
     }
 
-    public function find($id)
-    {try{
-       $Category=Category::find($id);
-        if (!$Category) {
-            return response()->json(['message' => 'No Category found'], 200);
-        }
-        return response()->json(['success'=>true,'data'=>$Category,'message'=>"get successful!"], 200);
-    }   catch (\Exception $e) {
-      return response()->json(['error' => 'An error occurred while fetching the Category'], 500);
-  }
+    public function find($id){
+       $category=Category::find($id);
+       $category ? $message = 'getting category successfully' : $message = 'not found';
+       return [
+           'category' => $category,
+           'message' => $message
+       ];
     }
 
     public function create(array $attributes)
     {
-        try {
-            $Category =  Category::create($attributes);
-            return response()->json(['success'=>true,'data'=>$Category,'message'=>"create successful!"], 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while creating the Category'], 400);
-        }
+            if (Auth::user()->hasRole('admin')){
+                $category =  Category::query()->create($attributes);
+                $message = 'category created successfully';
+            }else{
+                $category = null;
+                $message = 'you do not have access';
+            }
+            return [
+                'category' => $category,
+                'message' => $message
+            ];
     }
 
     public function update($id, array $attributes)
     {
-        try {
-            $category =category::find($id);
-            if (!$category) {
-                return response()->json(['error' => 'category not found'], 404);
+        $category =category::find($id);
+        if ($category) {
+            if (Auth::user()->hasRole('admin')){
+                $category->update($attributes);
+                $message = 'category updated successfully';
+            }else{
+                $category = null;
+                $message = 'you do not have access';
             }
-            $category->update($attributes);
-            return response()->json(['success'=>true,'data'=>$category,'message'=>"update successful!"], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while updating the Category'], 500);
+        }else{
+            $message = 'not found';
         }
+        return [
+            'category' => $category,
+            'message' => $message
+        ];
     }
 
     public function delete($id)
     {
-        try {
-            $Category = Category::find($id);
-
-            if ($Category==false) {
-                return response()->json(['error' => 'Category not found'], 404);
+            $category = Category::find($id);
+            if ($category) {
+                if (Auth::user()->hasRole('admin')){
+                    $category->delete();
+                    $message = 'category deleted successfully';
+                }else{
+                    $category = null;
+                    $message = 'you do not have access';
+                }
+            }else{
+                $message = 'not found';
             }
-
-            $Category->delete();
-            return response()->json(['success'=>true,'message'=>"delete successful!"], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while deleting the Category'], 500);
-        }
+            return [
+                'category' => $category,
+                'message' => $message
+            ];
     }
 
     public function searchCategory($query)
     {
-        try{
-            $category=category::where('name', 'like', "%{$query}%")->get();
-            if ($category->isEmpty()) {
-                return response()->json(['message' => 'no result found '], 200);
-            }
-              return response()->json(['success'=>true,'data'=>$category,'message'=>"get successful!"], 200);
-        }catch(\Exception $e){
-            return response()->json(['error' => 'An error occurred while do search '], 500);
-
-        }
+            $categories = category::where('name', 'like', "%{$query}%")->get();
+            $categories ? $message = 'getting categories' : $message = 'there is no result';
+            return [
+                'categories' => $categories,
+                'message' => $message
+            ];
     }
 }

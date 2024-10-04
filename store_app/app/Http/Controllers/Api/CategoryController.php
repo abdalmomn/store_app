@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\categoryRequest;
+use App\Http\Responses\Response;
+use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\categories\CategoryRepositoryInterface;
@@ -10,42 +12,82 @@ use App\Repositories\categories\CategoryRepository;
 
 class CategoryController extends Controller
 {
-    protected $CategoryRepository;
+    protected $categoryRepository;
 
-    public function __construct(CategoryRepositoryInterface $CategoryRepository)
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
-        $this->CategoryRepository = $CategoryRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function index()
     {
-        return  $this->CategoryRepository->all();
+        $data = [];
+        try {
+            $data = $this->categoryRepository->all();
+            return Response::Success($data['categories'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 
     public function show($id)
     {
-        return  $this->CategoryRepository->find($id);
+        $data = [];
+        try {
+            $data = $this->categoryRepository->find($id);
+            return Response::Success($data['category'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
-
-
 
     public function create(categoryRequest $request)
     {
-        return $this->CategoryRepository->create($request->validated());
+        $data = [];
+        try {
+            $data = $this->categoryRepository->create($request->validated());
+            return Response::Success($data['category'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 
     public function update(categoryRequest $request, $id)
     {
-        return $this->CategoryRepository->update($id, $request->validated());
+        $data = [];
+        try {
+            $data = $this->categoryRepository->update($id,$request->validated());
+            return Response::Success($data['category'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 
     public function destroy($id)
     {
-        return$this->CategoryRepository->delete($id);
+        $data = [];
+        try {
+            $data = $this->categoryRepository->delete($id);
+            return Response::Success($data['category'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
     public function search(Request $request)
     {
+        $data = [];
         $query = $request->input('query');
-        return $this->CategoryRepository->searchCategory($query);    }
-
+        try {
+            $data = $this->categoryRepository->searchCategory($query);
+            return Response::Success($data['categories'], $data['message']);
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            return Response::Error($data, $message);
+        }
+    }
 }

@@ -3,67 +3,139 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\Response;
+use Exception;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use App\Repositories\products\ProductRepository;
 use App\Repositories\products\ProductRepositoryInterface;
 class ProductController extends Controller
 {
-    protected $ProductRepository;
-    public function __construct(ProductRepositoryInterface $ProductRepository)
+    protected $productRepository;
+    public function __construct(ProductRepositoryInterface $productRepository)
     {
-        $this->ProductRepository = $ProductRepository;
+        $this->productRepository = $productRepository;
     }
 
 
     public function index()
     {
-       return $this->ProductRepository->all();
+        $data = [];
+        try{
+           $data = $this->productRepository->all();
+           return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+           $message = $e->getMessage();
+           return Response::Error($data,$message);
+        }
     }
     public function create(ProductRequest $request)
     {
-        return$this->ProductRepository->create($request->validated());
+        $data = [];
+        try{
+            $data = $this->productRepository->create($request->validated());
+            return Response::Success($data['product'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 
 
     public function show($id)
     {
-        return$this->ProductRepository->find($id);
+        $data = [];
+        try{
+            $data = $this->productRepository->find($id);
+            return Response::Success($data['product'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 
 
 
     public function update(ProductRequest $request, $id)
     {
-        return$this->ProductRepository->update($id, $request->validated());
+        $data = [];
+        try{
+            $data = $this->productRepository->update($id,$request->validated());
+            return Response::Success($data['product'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
      }
 
 
     public function destroy($id)
     {
-        return  $this->ProductRepository->delete($id);
-       }
+        $data = [];
+        try{
+            $data = $this->productRepository->delete($id);
+            return Response::Success($data['product'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
     public function getByCategory($categoryId)
     {
-        return  $this->ProductRepository->getProductsByCategory($categoryId);
+        $data = [];
+        try{
+            $data = $this->productRepository->getProductsByCategory($categoryId);
+            return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
       }
     public function getByBrand($brandId)
     {
-        return  $this->ProductRepository->getProductsByBrand($brandId);
+        $data = [];
+        try{
+            $data = $this->productRepository->getProductsByBrand($brandId);
+            return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
       }
     public function getProductsByCategoryAndBrand($categoryId,$brandId=null)
     {
-        return  $this->ProductRepository->getProductsByCategoryAndBrand($categoryId,$brandId);
+        $data = [];
+        try{
+            $data = $this->productRepository->getProductsByCategoryAndBrand($categoryId,$brandId);
+            return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
       }
 
     public function search(Request $request)
     {
         $query = $request->input('query');
-        return $this->ProductRepository->searchProducts($query);
+        $data = [];
+        try{
+            $data = $this->productRepository->searchProducts($query);
+            return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
      }
 
     public function getPopular($limit = 5)
     {
-        return $this->ProductRepository->getPopularProducts($limit);
+        $data = [];
+        try{
+            $data = $this->productRepository->getPopularProducts($limit);
+            return Response::Success($data['products'],$data['message']);
+        }catch(Exception $e){
+            $message = $e->getMessage();
+            return Response::Error($data,$message);
+        }
     }
 }

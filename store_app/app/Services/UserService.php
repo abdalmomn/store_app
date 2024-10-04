@@ -5,6 +5,7 @@ use App\Mail\ResetPasswordMail;
 use App\Models\Cart;
 use App\Models\ResetCodePassword;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,10 +18,19 @@ use Spatie\Permission\Models\Role;
 class UserService{
     public function register_as_client($request):array
     {
+
+        do {
+            $referralCode = strtoupper(Str::random(8));
+        } while (User::where('referral_code', $referralCode)->exists());
+
+        $request['referral_code'] = $referralCode;
         $user = User::query()->create($request);
 
         Cart::query()->create([
            'user_id' => $user->id
+        ]);
+        Wallet::query()->create([
+           'user_id' => $user->id,
         ]);
 
         $clientRole = Role::query()
@@ -51,6 +61,12 @@ class UserService{
 
     public function register_as_seller($request):array
     {
+        do {
+            $referralCode = strtoupper(Str::random(8));
+        } while (User::where('referral_code', $referralCode)->exists());
+
+        $request['referral_code'] = $referralCode;
+
         $user = User::query()->create($request);
 
         Cart::query()->create([
