@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Providers;
-
+use App\Repositories\products\ProductPhotoRepositoryInterface;
+use App\Repositories\products\ProductPhotoRepository;
 use App\Repositories\ProfileRepository;
 use App\Repositories\brands\BrandRepository;
 use App\Repositories\categories\CategoryRepository;
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
         $this->app->bind(BrandRepositoryInterface::class, BrandRepository::class);
+        $this->app->bind(ProductPhotoRepositoryInterface::class, ProductPhotoRepository::class);
+
     }
 
     /**

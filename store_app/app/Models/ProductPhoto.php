@@ -13,6 +13,10 @@ class ProductPhoto extends Model
         'product_id',
     ];
 
+    public static function create(array $array)
+    {
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);

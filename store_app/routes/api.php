@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\ProductPhotoController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -115,3 +117,8 @@ use App\Http\Controllers\Api\BrandController;
             Route::get('/my_wallet' , 'show_my_wallet');
             Route::get('/user_wallet/{user_id}' , 'show_user_wallet');
         });
+Route::post('create/products/{productId}/photos', [ProductPhotoController::class, 'create']);
+//Route::put('update/product-photos/{id}', [ProductPhotoController::class, 'update']);
+Route::delete('delete/product-photos/{id}', [ProductPhotoController::class, 'destroy']);
+Route::get('getone/product-photos/{id}', [ProductPhotoController::class, 'show']);
+Route::get('products/{productId}/getphotosbyproduct', [ProductPhotoController::class, 'getPhotosByProduct']);
