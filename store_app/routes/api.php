@@ -16,6 +16,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ProductPhotoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,3 +166,8 @@ use Illuminate\Support\Facades\Route;
             Route::post('/update_repair_status/{trade_id}' , 'change_repair_order_status');
             Route::post('/cancel_repair_product/{trade_id}' , 'cancel_repair_order');
         });
+Route::post('create/products/{productId}/photos', [ProductPhotoController::class, 'create']);
+//Route::put('update/product-photos/{id}', [ProductPhotoController::class, 'update']);
+Route::delete('delete/product-photos/{id}', [ProductPhotoController::class, 'destroy']);
+Route::get('getone/product-photos/{id}', [ProductPhotoController::class, 'show']);
+Route::get('products/{productId}/getphotosbyproduct', [ProductPhotoController::class, 'getPhotosByProduct']);
