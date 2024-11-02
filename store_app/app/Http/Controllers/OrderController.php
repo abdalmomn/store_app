@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Address\CreateAddressRequest;
 use App\Http\Requests\Address\UpdateAddressRequest;
+use App\Http\Requests\CheckValidCouponRequest;
+use App\Http\Requests\Orders\ChangeOrderStatusRequest;
+use App\Http\Requests\Orders\PlaceOrderRequest;
 use App\Http\Responses\Response;
 use App\Services\OrderService;
 use Exception;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -16,72 +20,60 @@ class OrderController extends Controller
     {
         $this->orderService = $orderService;
     }
-    public function save_address(CreateAddressRequest $request)
+
+    public function checkout(Request $request)
     {
         $data = [];
         try{
-            $data = $this->orderService->save_address($request->validated());
-            return Response::Success($data['address'] , $data['message']);
-        }catch(Exception $e){
-            $message  = $e->getMessage();
-            return Response::Error($data,$message);
-        }
-    }
-    public function make_primary($address_id)
-    {
-        $data = [];
-        try{
-            $data = $this->orderService->make_primary($address_id);
-            return Response::Success($data['new_primary'] , $data['message']);
-        }catch(Exception $e){
-            $message  = $e->getMessage();
-            return Response::Error($data,$message);
-        }
-    }
-//    public function show_addresses()
-//    {
-//        $data = [];
-//        try{
-//            $data = $this->orderService->show_addresses();
-//            return Response::Success($data['addresses'] , $data['message']);
-//        }catch(Exception $e){
-//            $message  = $e->getMessage();
-//            return Response::Error($data,$message);
-//        }
-//    }
-    public function edit_address($address_id,UpdateAddressRequest $request)
-    {
-        $data = [];
-        try{
-            $data = $this->orderService->edit_address($address_id,$request->validated());
-            return Response::Success($data['address'] , $data['message']);
-        }catch(Exception $e){
-            $message  = $e->getMessage();
-            return Response::Error($data,$message);
-        }
-    }
-    public function delete_address($address_id)
-    {
-        $data = [];
-        try{
-            $data = $this->orderService->delete_address($address_id);
-            return Response::Success($data['address'] , $data['message']);
-        }catch(Exception $e){
-            $message  = $e->getMessage();
-            return Response::Error($data,$message);
-        }
-    }
-    public function deliver_to_my_address($cart_id)
-    {
-        $data = [];
-        try{
-            $data = $this->orderService->deliver_to_my_address($cart_id);
+            $shipping_address = $request->input('Shipping_Address');
+            $data = $this->orderService->checkout($request);
             return response()->json([
                 'addresses' => $data['addresses'],
                 'products' => $data['products'],
-                'shipping_methods' => $data['shipping_methods'],
-                'payment_methods' => $data['payment_methods'],
+                'shipping methods' => $data['shipping_methods'],
+                'payment methods' => $data['payment_methods'],
+                'wallet points' => $data['wallet_points'] ,
                 'message' => $data['message']
+            ]);
+        }catch(Exception $e){
+            $message  = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
+
+
+    public function place_order(PlaceOrderRequest $request)
+    {
+        $data = [];
+        try {
+            $data = $this->orderService->place_order($request);
+            return Response::Success($data['order'] , $data['message']);
+        }catch(Exception $e){
+            $message  = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
+    public function cancel_placed_order($order_id)
+    {
+        $data = [];
+        try {
+            $data = $this->orderService->cancel_placed_order($order_id);
+            return Response::Success($data['order'] , $data['message']);
+        }catch(Exception $e){
+            $message  = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
+    public function change_order_status($order_id,ChangeOrderStatusRequest $request)
+    {
+        $data = [];
+        try {
+            $data = $this->orderService->change_order_status($order_id , $request->validated());
+            return response()->json([
+                'order' => $data['order'],
+                'status' => $data['status'],
+                'message' => $data['message'],
+
             ]);
         }catch(Exception $e){
             $message  = $e->getMessage();

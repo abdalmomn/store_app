@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Orders;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class categoryRequest extends FormRequest
+class PlaceOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,8 @@ class categoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|max:40'
-
-        ];
-    }
-    public function messages()
-    {
-        return [
-            'name.required' => 'The category name is required.',
+          //  'shipping_method' => 'required|string|in:local_delivery,external_delivery', // Validate shipping method choices
+            'payment_method' => 'required|string|in:card,cash_on_delivery,points_system', // Validate payment methods
         ];
     }
 }

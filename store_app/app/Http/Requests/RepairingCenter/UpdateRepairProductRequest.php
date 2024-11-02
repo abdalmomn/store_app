@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RepairingCenter;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BrandRequest extends FormRequest
+class UpdateRepairProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,17 +22,13 @@ class BrandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'string|max:40',
-            'category_id' => 'exists:categories,id',
-
-        ];
-    }
-    public function messages()
-    {
-        return [
-            'name.required' => 'The Brand name is required.',
-            'category_id.required' => 'A valid category is required.',
-
+            'name' => 'string',
+            'photos' => 'array',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'date_of_manufacture' => '',
+            'malfunction_type' => 'string|in:hardware,software',
+            'malfunction_description' => 'string|min:20',
+            'additional_notes' => 'nullable|string|max:1000',
         ];
     }
 }

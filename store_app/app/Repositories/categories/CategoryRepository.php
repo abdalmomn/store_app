@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
-    public function all()
+    public function show_all_categories():array
     {
         $categories = category::query()
         ->select("name")
@@ -22,8 +22,9 @@ class CategoryRepository implements CategoryRepositoryInterface
         ];
     }
 
-    public function find($id){
-       $category=Category::find($id);
+    public function show_category($category_id):array
+    {
+       $category=Category::find($category_id);
        $category ? $message = 'getting category successfully' : $message = 'not found';
        return [
            'category' => $category,
@@ -31,7 +32,7 @@ class CategoryRepository implements CategoryRepositoryInterface
        ];
     }
 
-    public function create(array $attributes)
+    public function create_category(array $attributes):array
     {
             if (Auth::user()->hasRole('admin')){
                 $category =  Category::query()->create($attributes);
@@ -46,9 +47,9 @@ class CategoryRepository implements CategoryRepositoryInterface
             ];
     }
 
-    public function update($id, array $attributes)
+    public function update_category($category_id, array $attributes):array
     {
-        $category =category::find($id);
+        $category =category::find($category_id);
         if ($category) {
             if (Auth::user()->hasRole('admin')){
                 $category->update($attributes);
@@ -66,9 +67,9 @@ class CategoryRepository implements CategoryRepositoryInterface
         ];
     }
 
-    public function delete($id)
+    public function delete_category($category_id):array
     {
-            $category = Category::find($id);
+            $category = Category::find($category_id);
             if ($category) {
                 if (Auth::user()->hasRole('admin')){
                     $category->delete();
@@ -86,7 +87,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             ];
     }
 
-    public function searchCategory($query)
+    public function search_by_category($query):array
     {
             $categories = category::where('name', 'like', "%{$query}%")->get();
             $categories ? $message = 'getting categories' : $message = 'there is no result';

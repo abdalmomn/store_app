@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Requests\categoryRequest;
+use App\Http\Requests\Categories\categoryRequest;
 use App\Http\Responses\Response;
-use Exception;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Repositories\categories\CategoryRepositoryInterface;
-use App\Repositories\categories\CategoryRepository;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -19,11 +18,11 @@ class CategoryController extends Controller
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function index()
+    public function show_all_categories():JsonResponse
     {
         $data = [];
         try {
-            $data = $this->categoryRepository->all();
+            $data = $this->categoryRepository->show_all_categories();
             return Response::Success($data['categories'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
@@ -31,11 +30,11 @@ class CategoryController extends Controller
         }
     }
 
-    public function show($id)
+    public function show_category($category_id):JsonResponse
     {
         $data = [];
         try {
-            $data = $this->categoryRepository->find($id);
+            $data = $this->categoryRepository->show_category($category_id);
             return Response::Success($data['category'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
@@ -43,11 +42,11 @@ class CategoryController extends Controller
         }
     }
 
-    public function create(categoryRequest $request)
+    public function create_category(categoryRequest $request):JsonResponse
     {
         $data = [];
         try {
-            $data = $this->categoryRepository->create($request->validated());
+            $data = $this->categoryRepository->create_category($request->validated());
             return Response::Success($data['category'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
@@ -55,11 +54,11 @@ class CategoryController extends Controller
         }
     }
 
-    public function update(categoryRequest $request, $id)
+    public function update_category(categoryRequest $request, $category_id):JsonResponse
     {
         $data = [];
         try {
-            $data = $this->categoryRepository->update($id,$request->validated());
+            $data = $this->categoryRepository->update_category($category_id,$request->validated());
             return Response::Success($data['category'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
@@ -67,23 +66,23 @@ class CategoryController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function delete_category($category_id):JsonResponse
     {
         $data = [];
         try {
-            $data = $this->categoryRepository->delete($id);
+            $data = $this->categoryRepository->delete_category($category_id);
             return Response::Success($data['category'],$data['message']);
         }catch(Exception $e){
             $message = $e->getMessage();
             return Response::Error($data,$message);
         }
     }
-    public function search(Request $request)
+    public function search_by_category(Request $request):JsonResponse
     {
         $data = [];
         $query = $request->input('query');
         try {
-            $data = $this->categoryRepository->searchCategory($query);
+            $data = $this->categoryRepository->search_by_category($query);
             return Response::Success($data['categories'], $data['message']);
         } catch (Exception $e) {
             $message = $e->getMessage();

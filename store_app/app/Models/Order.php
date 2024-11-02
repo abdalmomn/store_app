@@ -9,10 +9,14 @@ class Order extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'product_id',
+        'order_reference',
         'user_id',
         'status_id',
         'coupon_id',
+        'address_id',
+        'shipping_method',
+        'payment_method',
+        'total_price'
     ];
 
     public function user()
@@ -36,10 +40,6 @@ class Order extends Model
             ->withPivot('quantity', 'total_price')->withTimestamps();
     }
 
-    public function payment_method()
-    {
-        return $this->belongsTo(PaymentMethod::class);
-    }
 
     public function address()
     {

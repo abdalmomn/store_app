@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('repairing_centers', function (Blueprint $table) {
             $table->id();
-            $table->string('product_name');
-            $table->integer('memory');
-            $table->string('brand_name');
+            $table->string('repairing_order_reference')->unique();
+            $table->string('name');
+            $table->json('photos');
             $table->date('date_of_manufacture');
-            $table->integer('malfunction_notes');
-            $table->string('addition_notes');
+            $table->enum('malfunction_type' , ['hardware' , 'software']); // sorting by hardware ot software
+            $table->text('malfunctions_description');
+            $table->string('additional_notes')->nullable();
 
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();

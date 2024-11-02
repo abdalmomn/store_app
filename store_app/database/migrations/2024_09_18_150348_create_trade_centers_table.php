@@ -13,15 +13,21 @@ return new class extends Migration
     {
         Schema::create('trade_centers', function (Blueprint $table) {
             $table->id('id');
-            $table->string('product_name');
-            $table->integer('memory');
-            $table->integer('battery_percentage');
-            $table->string('brand_name');
-            $table->date('date_of_manufacture');
-            $table->string('addition_notes');
-
+            $table->string('name');
+            $table->string('trading_order_reference')->unique();
+            $table->enum('condition' , ['new', 'like new', 'used', 'damaged']);
+            $table->integer('storage_capacity');
+            $table->text('accessories')->nullable();
+            $table->date('purchase_date');
+            $table->decimal('purchase_price' ,10,2)->nullable();
+            $table->json('photos')->nullable();
+            $table->text('additional_notes')->nullable();
+            $table->integer('approximate_price')->nullable();
+            $table->foreignId('brand_id')->nullable()->constrained('brands')->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
+            $table->foreignId('status_id')->default(1)->constrained('statuses')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->timestamps();
         });
     }

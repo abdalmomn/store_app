@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('order_reference')->unique();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
-            $table->foreignId('coupon_id')->constrained('coupons')->cascadeOnDelete();
+            $table->foreignId('coupon_id')->nullable()->constrained('coupons')->cascadeOnDelete();
             $table->foreignId('address_id')->constrained('addresses')->cascadeOnDelete();
-            $table->foreignId('payment_method_id')->constrained('payment_methods')->cascadeOnDelete();
             $table->string('shipping_method');
+            $table->decimal('shipping_cost')->nullable();
+            $table->string('payment_method');
             $table->decimal('total_price' , 10 ,2);
             $table->timestamps();
         });

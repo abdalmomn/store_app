@@ -10,7 +10,7 @@ use App\Repositories\products\ProductRepositoryInterface;
 
 class ProductRepository implements ProductRepositoryInterface
 {
-    public function all()
+    public function show_all_products():array
     {
         $products = product::query()
             ->select()
@@ -23,10 +23,10 @@ class ProductRepository implements ProductRepositoryInterface
         ];
     }
 
-    public function find($id)
+    public function show_product($product_id):array
     {
 
-        $product = Product::find($id);
+        $product = Product::find($product_id);
         $product ? $message = 'getting product successfully' : $message = 'not found';
         return [
             'product' => $product,
@@ -34,7 +34,7 @@ class ProductRepository implements ProductRepositoryInterface
         ];
     }
 
-    public function create(array $attributes)
+    public function create_product(array $attributes):array
     {
         if (Auth::user()->hasRole('admin')){
             $product = Product::create($attributes);
@@ -50,9 +50,9 @@ class ProductRepository implements ProductRepositoryInterface
 
     }
 
-    public function update($id, array $attributes)
+    public function update_product($product_id, array $attributes):array
     {
-        $product = product::find($id);
+        $product = product::find($product_id);
 
         if ($product) {
             if (Auth::user()->hasRole('admin')){
@@ -72,9 +72,9 @@ class ProductRepository implements ProductRepositoryInterface
 
     }
 
-    public function delete($id)
+    public function delete_product($product_id):array
     {
-        $product = Product::find($id);
+        $product = Product::find($product_id);
         if ($product) {
             if (Auth::user()->hasRole('admin')){
                 $product->delete();
@@ -94,9 +94,9 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
 
-    public function getProductsByCategory($categoryId)
+    public function get_products_by_category($category_id):array
     {
-        $products = Product::where('category_id', $categoryId)->get();
+        $products = Product::where('category_id', $category_id)->get();
         $products ? $message = 'getting products successfully' : $message = 'there are no products for this category';
         return [
             'products' => $products,
@@ -104,9 +104,9 @@ class ProductRepository implements ProductRepositoryInterface
         ];
     }
 
-    public function getProductsByBrand($brandId)
+    public function get_products_by_brand($brand_id):array
     {
-        $products = Product::where('brand_id', $brandId)->get();
+        $products = Product::where('brand_id', $brand_id)->get();
         $products ? $message = 'getting products successfully' : $message = 'there are no products for this brand';
         return [
             'products' => $products,
@@ -114,7 +114,7 @@ class ProductRepository implements ProductRepositoryInterface
         ];
     }
 
-    public function searchProducts($query)
+    public function search_products($query):array
     {
         $products = Product::where('name', 'like', "%{$query}%")->get();
         $products ? $message = 'getting products successfully' : $message = 'no results';
@@ -125,17 +125,17 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
 // تحتاج للتعديل
-    public function getPopularProducts($limit = 5)
+    public function get_popular_products($limit = 5):array
     {
         return Product::orderBy('quantity', 'desc')->take($limit)->get();
     }
 
-    public function getProductsByCategoryAndBrand($categoryId, $brandId = null)
+    public function get_products_by_category_and_brand($category_id, $brand_id = null):array
     {
-            $query = Product::where('category_id', $categoryId);
+            $query = Product::where('category_id', $category_id);
 
-            if ($brandId) {
-                $query->where('brand_id', $brandId);
+            if ($brand_id) {
+                $query->where('brand_id', $brand_id);
             }
 
             $products = $query->get();

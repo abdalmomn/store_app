@@ -1,7 +1,5 @@
 <?php
-namespace App\Repositories;
-
-use App\Models\User;
+namespace App\Repositories\profile;
 
 interface ProfileRepositoryInterface {
     public function show_all_profiles();

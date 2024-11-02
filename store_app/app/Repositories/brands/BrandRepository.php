@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class BrandRepository implements BrandRepositoryInterface
 {
-    public function all()
+    public function show_all_brands():array
     {
         $brands = Brand::query()
-        ->select("name")
+        ->select('name')
         ->paginate(50);
         if ($brands->isEmpty()) {
             $message = 'not found';
@@ -24,9 +24,9 @@ class BrandRepository implements BrandRepositoryInterface
         ];
     }
 
-    public function find($id)
+    public function show_brand($brand_id):array
     {
-            $brand = Brand::find($id);
+            $brand = Brand::find($brand_id);
             if (!$brand) {
                 $message = 'not found';
             }else{
@@ -38,7 +38,7 @@ class BrandRepository implements BrandRepositoryInterface
             ];
     }
 
-    public function create(array $attributes)
+    public function create_brand(array $attributes):array
     {
         if (Auth::user()->hasRole('admin')){
             $brand = Brand::create($attributes);
@@ -53,9 +53,9 @@ class BrandRepository implements BrandRepositoryInterface
         ];
     }
 
-    public function update($id, array $attributes)
+    public function update_brand($brand_id, array $attributes):array
     {
-            $brand = brand::find($id);
+            $brand = brand::find($brand_id);
 
             if ($brand) {
                 if (Auth::user()->hasRole('admin')) {
@@ -74,10 +74,10 @@ class BrandRepository implements BrandRepositoryInterface
         ];
     }
 
-    public function delete($id)
+    public function delete_brand($brand_id):array
     {
 
-            $brand = Brand::find($id);
+            $brand = Brand::find($brand_id);
             if ($brand) {
                 if (Auth::user()->hasRole('admin')) {
                     $brand->delete();
@@ -94,7 +94,7 @@ class BrandRepository implements BrandRepositoryInterface
                 'message' => $message
             ];
     }
-    public function searchBrand($query)
+    public function search_by_brand($query):array
     {
             $brands=Brand::where('name', 'like', "%{$query}%")->get();
             if ($brands->isEmpty()) {
@@ -107,9 +107,10 @@ class BrandRepository implements BrandRepositoryInterface
                 'message' => $message
             ];
     }
-    public function getBrandByCategory($categoryId){
+    public function get_brands_by_category($category_id):array
+    {
 
-        $brands=Brand::where('category_id', $categoryId)->get();
+        $brands=Brand::where('category_id', $category_id)->get();
         if ($brands->isEmpty()) {
             $message = 'there is no brand for this category';
         }else{

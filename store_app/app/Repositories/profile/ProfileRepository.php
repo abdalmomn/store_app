@@ -1,11 +1,9 @@
 <?php
-namespace App\Repositories;
+namespace App\Repositories\profile;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Testing\Fluent\Concerns\Has;
 
 class ProfileRepository implements ProfileRepositoryInterface
 {

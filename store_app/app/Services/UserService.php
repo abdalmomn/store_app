@@ -16,48 +16,69 @@ use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Role;
 
 class UserService{
-    public function register_as_client($request):array
+    public function register_as_client($request): array
     {
+        // Validate if the referred_by_code exists in the request and in the database
+        if (!empty($request['referred_by_code'])) {
+            $referrer = User::query()
+                ->where('referral_code', $request['referred_by_code'])
+                ->first();
 
+            if (!$referrer) {
+                return[
+                'user' => null,
+                'message' => 'Invalid referral code.',
+                ];
+            }
+
+            // Optionally, store the referrer ID or log the referral in a separate table
+            $request['referrer_id'] = $referrer->id; // For example, to link the referrer
+        }
+
+        // Generate a unique referral code for the new user
         do {
-            $referralCode = strtoupper(Str::random(8));
+            $referralCode = 'R-' . strtoupper(Str::random(8));
         } while (User::where('referral_code', $referralCode)->exists());
 
         $request['referral_code'] = $referralCode;
+
+        // Create the user
         $user = User::query()->create($request);
 
-        Cart::query()->create([
-           'user_id' => $user->id
-        ]);
-        Wallet::query()->create([
-           'user_id' => $user->id,
-        ]);
+        // Create associated records: cart and wallet
+        Cart::query()->create(['user_id' => $user->id]);
+        Wallet::query()->create(['user_id' => $user->id]);
 
+        // Assign the "client" role to the user
         $clientRole = Role::query()
-            ->where('name' , '=' , 'client')
+            ->where('name', '=', 'client')
             ->first();
 
         $user->assignRole($clientRole);
 
+        // Assign permissions associated with the client role
         $permissions = $clientRole->permissions()->pluck('name')->toArray();
         $user->givePermissionTo($permissions);
 
-        //show roles and permissions on response
-        $user->load('roles' , 'permissions');
+        // Load roles and permissions for response
+        $user->load('roles', 'permissions');
 
-        //reload user instance to get updated roles and permissions
+        // Reload user instance to get updated roles and permissions
         $user = User::query()->find($user['id']);
         $user = $this->appendRolesAndPermissions($user);
         $user['token'] = $user->createToken("token")->plainTextToken;
 
-        event(new Registered($user)); // Triggers and queue email verification
+        // Trigger email verification
+        event(new Registered($user));
 
-        $message = 'user has been registered successfully. A verification link has been sent to your email address. Please check your inbox.';
+        $message = 'User has been registered successfully. A verification link has been sent to your email address. Please check your inbox.';
+
         return [
             'user' => $user,
             'message' => $message,
         ];
     }
+
 
     public function register_as_seller($request):array
     {
@@ -159,7 +180,7 @@ class UserService{
     }
 
 
-    public function forget_password($request)
+    public function forget_password($request):array
     {
         $email = $request['email'];
 
@@ -177,18 +198,18 @@ class UserService{
                 'code' =>  $code,
                 'email' => $email,
             ]);
-       // $message = "You Can Use This code To Reset Password";
+        $message = "Reset code has been sent successfully to your email";
         $subject = 'Reset Password';
         Mail::to($email)->send(new ResetPasswordMail($subject,$code));
-        return redirect()->route('password.code')->with('status', 'Reset code has been sent successfully to your email.');
+        return [
+            'user' => $email,
+            'message' => $message,
+        ];
     }
-//        return [
-//            'user' => $email,
-//            'message' => $message,
-//        ];
 
 
-    public function resend_code($request)
+
+    public function resend_code($request):array
     {
         $email = Session::get('reset_email');
         $subject = 'Reset Password';
@@ -199,14 +220,14 @@ class UserService{
             ->update([
                 'code' => $code,
             ]);
-        return redirect()->route('password.code')->with('status', 'Reset code has been sent successfully to your email.');
-        //        return [
-        //            'user' => $email,
-        //            'message' => $message,
-        //        ];
+        $message = 'Reset code has been resend successfully to your email';
+                return [
+                    'user' => $email,
+                    'message' => $message,
+                ];
     }
 
-    public function check_code($request)
+    public function check_code($request):array
     {
         $email = Session::get('reset_email');
         $resetCode = $request['code'];
@@ -217,36 +238,31 @@ class UserService{
         if ($resetCode){
             if ($resetCode['created_at'] < now()->addHour()){
                 $resetCode->delete();
-              //      $code = '';
-              //      $message = 'the code has expired';
-                return redirect()->back()->withErrors(['code' => 'This code has expired.']);
+                    $code = null;
+                    $message = 'the code has expired';
             } else{
-             //   $code = $resetCode;
-               // $message = 'the code is correct';
-                return redirect()->route('password.reset')->with('status', 'The code is correct, you can now reset your password.');
-
+                $code = $resetCode;
+                $message = 'the code is correct';
             }
         }else{
-          //  $code = '';
-          //  $message = 'Invalid code or email';
-            return redirect()->back()->withErrors(['code' => 'Invalid code or email.']);
+            $code = null;
+            $message = 'Invalid code or email';
         }
-//        return [
-//            'code' => $code,
-//            'message' => $message,
-//        ];
+        return [
+            'code' => $code,
+            'message' => $message,
+        ];
     }
 
-    public function reset_password($request)
+    public function reset_password($request):array
     {
         $email = Session::get('reset_email');
         $user = User::query()
             ->where('email' , $email)
             ->first();
         if (Hash::check($user->password , $request['password'])){
-          //  $data = '';
-          //  $message = 'The new password cannot be the same as the old password';
-            return redirect()->back()->withErrors(['password' => 'The new password cannot be the same as the old password.']);
+            $data = null;
+            $message = 'The new password cannot be the same as the old password';
         }else{
             User::query()
                 ->update([
@@ -255,18 +271,17 @@ class UserService{
             ResetCodePassword::query()
                 ->where('email' , $email)
                 ->delete();
-        //    $data = $user;
-        //    $message = 'New password has been set successfully. You can now log in';
+            $data = $user;
+            $message = 'New password has been set successfully. You can now log in';
         }
-        return redirect()->route('login')->with('status', 'New password has been set successfully. You can now log in.');
-        //return [
-        //'data' => $data,
-        //'message' => $message
-        //];
+        return [
+            'data' => $data,
+            'message' => $message
+        ];
     }
 
 
-    public function google_handle_call_back()
+    public function google_handle_call_back():array
     {
         // Retrieve user from Google
         $googleUser = Socialite::driver('google')->user();
@@ -338,7 +353,7 @@ class UserService{
     }
 
 
-    public function apple_handle_call_back()
+    public function apple_handle_call_back():array
     {
         // Retrieve user from Google
         $appleUser = Socialite::driver('apple')->user();

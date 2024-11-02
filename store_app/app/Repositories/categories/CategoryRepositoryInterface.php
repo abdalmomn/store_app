@@ -4,11 +4,11 @@ namespace App\Repositories\categories;
 
 interface CategoryRepositoryInterface
 {
-    public function all();
-    public function find($id);
-    public function create(array $attributes);
-    public function update($id, array $attributes);
-    public function delete($id);
-    public function searchCategory($query);
+    public function show_all_categories();
+    public function show_category($category_id);
+    public function create_category(array $attributes);
+    public function update_category($category_id, array $attributes);
+    public function delete_category($category_id);
+    public function search_by_category($query);
 
 }
