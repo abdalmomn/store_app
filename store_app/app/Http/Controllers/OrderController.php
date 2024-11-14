@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Address\CreateAddressRequest;
-use App\Http\Requests\Address\UpdateAddressRequest;
-use App\Http\Requests\CheckValidCouponRequest;
 use App\Http\Requests\Orders\ChangeOrderStatusRequest;
 use App\Http\Requests\Orders\PlaceOrderRequest;
 use App\Http\Responses\Response;
@@ -41,18 +38,17 @@ class OrderController extends Controller
         }
     }
 
-
     public function place_order(PlaceOrderRequest $request)
     {
-        $data = [];
         try {
             $data = $this->orderService->place_order($request);
             return Response::Success($data['order'] , $data['message']);
         }catch(Exception $e){
             $message  = $e->getMessage();
-            return Response::Error($data,$message);
+            return Response::Error([],$message);
         }
     }
+
     public function cancel_placed_order($order_id)
     {
         $data = [];
@@ -64,6 +60,7 @@ class OrderController extends Controller
             return Response::Error($data,$message);
         }
     }
+
     public function change_order_status($order_id,ChangeOrderStatusRequest $request)
     {
         $data = [];

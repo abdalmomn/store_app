@@ -40,17 +40,17 @@ class AddressController extends Controller
             return Response::Error($data,$message);
         }
     }
-//    public function show_addresses()
-//    {
-//        $data = [];
-//        try{
-//            $data = $this->addressService->show_addresses();
-//            return Response::Success($data['addresses'] , $data['message']);
-//        }catch(Exception $e){
-//            $message  = $e->getMessage();
-//            return Response::Error($data,$message);
-//        }
-//    }
+    public function show_addresses()
+    {
+        $data = [];
+        try{
+            $data = $this->addressService->show_addresses();
+            return Response::Success($data['addresses'] , $data['message']);
+        }catch(Exception $e){
+            $message  = $e->getMessage();
+            return Response::Error($data,$message);
+        }
+    }
     public function edit_address($address_id,UpdateAddressRequest $request)
     {
         $data = [];

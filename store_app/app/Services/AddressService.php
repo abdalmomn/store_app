@@ -28,23 +28,23 @@ class AddressService{
         ];
     }
 
-//    public function show_addresses()
-//    {
-//        $addresses = Address::query()
-//            ->where('user_id',Auth::id())
-//            ->orderBy('primary' , 'desc')
-//            ->get();
-//        if ($addresses){
-//            $message = 'getting addresses successfully';
-//        }else{
-//            $addresses = null;
-//            $message = 'not found';
-//        }
-//        return [
-//            'addresses' => $addresses,
-//            'message' => $message
-//        ];
-//    }
+    public function show_addresses()
+    {
+        $addresses = Address::query()
+            ->where('user_id',Auth::id())
+            ->orderBy('primary' , 'desc')
+            ->get();
+        if ($addresses){
+            $message = 'getting addresses successfully';
+        }else{
+            $addresses = null;
+            $message = 'not found';
+        }
+        return [
+            'addresses' => $addresses,
+            'message' => $message
+        ];
+    }
 
     public function make_primary($address_id)
     {

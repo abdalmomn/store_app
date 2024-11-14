@@ -1,13 +1,8 @@
 <?php
 
 namespace App\Providers;
-<<<<<<< HEAD
-
-=======
 use App\Repositories\products\ProductPhotoRepositoryInterface;
 use App\Repositories\products\ProductPhotoRepository;
-use App\Repositories\ProfileRepository;
->>>>>>> bbae2cd3f3cda54ac0d2688702f4bfe7598aa1f9
 use App\Repositories\brands\BrandRepository;
 use App\Repositories\brands\BrandRepositoryInterface;
 use App\Repositories\categories\CategoryRepository;
@@ -33,13 +28,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
         $this->app->bind(BrandRepositoryInterface::class, BrandRepository::class);
-<<<<<<< HEAD
         $this->app->bind(CouponsRepositoryInterface::class, CouponsRepository::class);
         $this->app->bind(TransactionsRepositoryInterface::class, TransactionsRepository::class);
-=======
         $this->app->bind(ProductPhotoRepositoryInterface::class, ProductPhotoRepository::class);
 
->>>>>>> bbae2cd3f3cda54ac0d2688702f4bfe7598aa1f9
     }
 
     /**

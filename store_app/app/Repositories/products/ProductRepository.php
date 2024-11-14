@@ -14,7 +14,7 @@ class ProductRepository implements ProductRepositoryInterface
     {
         $products = product::query()
             ->select()
-            ->paginate(50);
+            ->cursorPaginate(25);
         $products ? $message = 'getting all products successfully' : $message = 'not found';
 
         return [
