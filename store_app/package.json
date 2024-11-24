@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
     "private": true,
     "scripts": {
         "dev": "vite",
@@ -10,9 +9,4 @@
         "laravel-vite-plugin": "^0.7.2",
         "vite": "^4.0.0"
     }
-=======
-  "devDependencies": {
-    "laravel-mix": "^6.0.49"
-  }
->>>>>>> b143e8fd4bc10bc4df297017481dbb9f5a82c8c4
 }
