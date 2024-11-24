@@ -18,7 +18,12 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
+<<<<<<< HEAD
 
+=======
+            StatusesSeeder::class,
+            CouponsSeeder::class,
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
         ]);
     }
 }

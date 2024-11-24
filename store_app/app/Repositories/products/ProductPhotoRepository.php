@@ -26,12 +26,20 @@ class ProductPhotoRepository implements ProductPhotoRepositoryInterface
         ];
 
 
+<<<<<<< HEAD
 
+=======
+        return $photos;
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
     }
 
        public function update(int $id, array $data)
     {
+<<<<<<< HEAD
         $productPhoto = ProductPhoto::query()->find($id);
+=======
+        $productPhoto = ProductPhoto::find($id);
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
         $productPhoto->update($data);
         return $productPhoto;
     }
@@ -60,7 +68,11 @@ class ProductPhotoRepository implements ProductPhotoRepositoryInterface
 
     public function getById(int $id)
     {
+<<<<<<< HEAD
       $photo=   ProductPhoto::query()->find($id);
+=======
+      $photo=   ProductPhoto::find($id);
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
       $photo ? $message='get success fully': $message='not found';
         return [
             'photo'=> $photo,
@@ -69,7 +81,11 @@ class ProductPhotoRepository implements ProductPhotoRepositoryInterface
     }
     public function getPhotosByProductId(int $productId)
     {
+<<<<<<< HEAD
         $photo= ProductPhoto::query()->where('product_id', $productId)->get();
+=======
+        $photo= ProductPhoto::where('product_id', $productId)->get();
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
         $photo ? $message='get photo successfully':$message="there are not found for this product  ";
         return [
             'photo'=> $photo,

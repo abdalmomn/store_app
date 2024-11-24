@@ -97,10 +97,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Address::class);
     }
+<<<<<<< HEAD
     public function likes()
     {
         return $this->belongsToMany(Review::class, 'likes')->withPivot('status_like' );
     }
+=======
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 //    public function personalAccessTokens()
 //    {
 //        return $this->hasMany(PersonalAccessToken::class, 'tokenable_id');

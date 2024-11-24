@@ -47,8 +47,12 @@ class Product extends Model
 
     public function offers()
     {
+<<<<<<< HEAD
         return $this->belongsToMany(Offer::class , 'offer_products') ->withPivot('quantity')
             ->withTimestamps();
+=======
+        return $this->belongsToMany(Offer::class , 'offers_products');
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
     }
 
     public function wishlists()

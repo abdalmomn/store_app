@@ -9,12 +9,22 @@ class RepairingCenter extends Model
 {
     use HasFactory;
     protected $fillable = [
+<<<<<<< HEAD
         'product_name',
         'memory',
         'brand_name',
         'date_of_manufacture',
         'malfunction_notes',
         'addition_notes',
+=======
+        'repairing_order_reference',
+        'name',
+        'photos',
+        'date_of_manufacture',
+        'malfunction_type',
+        'malfunctions_description',
+        'additional_notes',
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
         'user_id',
         'status_id',
     ];

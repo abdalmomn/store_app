@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use App\Http\Requests\AddToCartRequest;
+=======
+use App\Http\Requests\Carts\AddToCartRequest;
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 use App\Http\Responses\Response;
 use App\Services\CartService;
 use Exception;
 use Illuminate\Http\JsonResponse;
+<<<<<<< HEAD
 use Illuminate\Http\Request;
+=======
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 
 class CartController extends Controller
 {
@@ -51,8 +58,11 @@ class CartController extends Controller
             return Response::Error($data,$message);
         }
     }
+<<<<<<< HEAD
 
     ////
     // add update quantity to cart
 
+=======
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 }

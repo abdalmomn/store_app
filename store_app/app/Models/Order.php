@@ -9,10 +9,21 @@ class Order extends Model
 {
     use HasFactory;
     protected $fillable = [
+<<<<<<< HEAD
         'product_id',
         'user_id',
         'status_id',
         'coupon_id',
+=======
+        'order_reference',
+        'user_id',
+        'status_id',
+        'coupon_id',
+        'address_id',
+        'shipping_method',
+        'payment_method',
+        'total_price'
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
     ];
 
     public function user()
@@ -36,10 +47,13 @@ class Order extends Model
             ->withPivot('quantity', 'total_price')->withTimestamps();
     }
 
+<<<<<<< HEAD
     public function payment_method()
     {
         return $this->belongsTo(PaymentMethod::class);
     }
+=======
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 
     public function address()
     {

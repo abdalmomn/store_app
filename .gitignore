@@ -1,1 +1,26 @@
+<<<<<<< HEAD
 node_modules
+=======
+<<<<<<< HEAD
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+=======
+node_modules
+>>>>>>> b143e8fd4bc10bc4df297017481dbb9f5a82c8c4
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8

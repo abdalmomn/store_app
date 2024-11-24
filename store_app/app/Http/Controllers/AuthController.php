@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\UserSignInRequest;
 use App\Http\Requests\Auth\UserSignUpRequest;
+<<<<<<< HEAD
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
+=======
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 use App\Http\Requests\ResetPassword\CheckCodeRequest;
 use App\Http\Requests\ResetPassword\ForgetPasswordRequest;
 use App\Http\Requests\ResetPassword\ResetPasswordRequest;
@@ -13,6 +16,7 @@ use App\Http\Responses\Response;
 use App\Jobs\SendResetCodeEmail;
 use App\Models\ResetCodePassword;
 use App\Models\User;
+<<<<<<< HEAD
 use App\Repositories\ProfileRepositoryInterface;
 use App\Services\UserService;
 use Exception;
@@ -33,6 +37,22 @@ class AuthController extends Controller
     {
         $this->userService = $userService;
         $this->profileRepository = $profileRepository;
+=======
+use App\Services\UserService;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Laravel\Socialite\Facades\Socialite;
+
+class AuthController extends Controller
+{
+    private UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
     }
 
     public function register_as_client(UserSignUpRequest $request):JsonResponse
@@ -43,7 +63,11 @@ class AuthController extends Controller
             $data['password'] = Hash::make($request['password']);
             $data = $this->userService->register_as_client($data);
             return Response::Success($data['user'] , $data['message']);
+<<<<<<< HEAD
         }catch (Throwable $th){
+=======
+        }catch (Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data,$message);
         }
@@ -56,7 +80,11 @@ class AuthController extends Controller
             $data['password'] = Hash::make($request['password']);
             $data = $this->userService->register_as_seller($data);
             return Response::Success($data['user'] , $data['message']);
+<<<<<<< HEAD
         }catch (Throwable $th){
+=======
+        }catch (Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data,$message);
         }
@@ -68,7 +96,11 @@ class AuthController extends Controller
         try {
             $data = $this->userService->login($request->validated());
             return Response::Success($data['user'] , $data['message']);
+<<<<<<< HEAD
         }catch(Throwable $th){
+=======
+        }catch(Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data , $message);
         }
@@ -80,7 +112,11 @@ class AuthController extends Controller
         try {
             $data = $this->userService->logout();
             return Response::Success($data['user'] , $data['message']);
+<<<<<<< HEAD
         }catch(Throwable $th){
+=======
+        }catch(Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data , $message);
         }
@@ -89,6 +125,7 @@ class AuthController extends Controller
     /////////////////////////////////////////////////////////
     //for test session
 
+<<<<<<< HEAD
     public function index()
     {
         return view('welcome');
@@ -224,11 +261,149 @@ class AuthController extends Controller
         return redirect()->route('index')->with('status', 'New password has been set successfully. You can now log in.');
 
     }
+=======
+//    public function index()
+//    {
+//        return view('welcome');
+//    }
+//    public function showForgetPasswordForm()
+//    {
+//        return view('forget_password');
+//    }
+//
+//    public function showCheckCodeForm()
+//    {
+//        return view('check_code');
+//    }
+//    public function showResetPasswordForm()
+//    {
+//        return view('reset_password');
+//    }
+
+//    public function forget_password(ForgetPasswordRequest  $request)
+//    {
+//
+//        $email = $request['email'];
+//
+//        // Store email in session or cache
+//
+//        $request->session()->regenerate();
+//        Session::put('reset_email', $email);
+//        //Cache::put('reset_email', $email, now()->addHour());
+//
+//        ResetCodePassword::query()
+//            ->where('email' , $email)
+//            ->delete();
+//
+//        $code = random_int(100000,999999);
+//
+//        ResetCodePassword::query()->create([
+//            'email' => $email,
+//            'code' => $code,
+//            'created_at' => now(),
+//        ]);
+//
+//        $toEmail = $request['email'];
+//        $subject = "Reset Password";
+//
+//        SendResetCodeEmail::dispatch($email,$code,$subject);
+//        return redirect()->route('password.code')->with('status', 'Reset code has been sent successfully to your email.');
+//
+//    }
+//
+//    public function resend_code()
+//    {
+//        $email = Session::get('reset_email');
+//        $subject = 'Reset Password';
+//        $code = random_int(100000,999999);
+//
+//        // Optional: Add time check before resending the code
+//        $lastSent = Session::get('last_code_sent_at');
+//        if ($lastSent && now()->diffInMinutes($lastSent) < 5) {
+//            return redirect()->route('password.code')->withErrors(['error' => 'You must wait 5 minutes before requesting a new code.']);
+//        }
+//
+//        SendResetCodeEmail::dispatch($email,$code,$subject);
+//        ResetCodePassword::query()
+//            ->where('email' , $email)
+//            ->update(['code' => $code]);
+//
+//        // Store the time the code was resent
+//        Session::put('last_code_sent_at', now());
+//
+//        return redirect()->route('password.code')->with('status', 'Reset code has been sent successfully to your email.');
+//    }
+//
+//    //        return [
+//        //            'user' => $email,
+//        //            'message' => $message,
+//        //        ];
+//
+//
+//    public  function check_code(CheckCodeRequest $request)
+//    {
+//        // Retrieve email from session or cache
+//        $email = Session::get('reset_email');
+//        //$email = Cache::get('reset_email');
+//
+//        if (!is_null($email)){
+//            $resetCode = ResetCodePassword::query()
+//                ->where('code', $request['code'])
+//                ->where('email' , $email)
+//                ->first();
+//            if (!is_null($resetCode)) {
+//                if ($resetCode['created_at'] > now()->addHour()){
+//                    $resetCode->delete();
+//                    return redirect()->back()->withErrors(['code' => 'This code has expired.']);
+//                } else {
+//                    return redirect()->route('password.reset')->with('status', 'The code is correct, you can now reset your password.');
+//                }
+//            }else{
+//                return redirect()->back()->withErrors(['code' => 'Invalid code or email.']);
+//            }
+//        }else{
+//
+//            return redirect()->back()->withErrors(['code' => 'you can not reset the password right now']);
+//        }
+//    }
+//
+//
+//    public function reset_password(ResetPasswordRequest $request)
+//    {
+//
+//        // Retrieve email from session or cache
+//        $email = Session::get('reset_email');
+//        //$email = Cache::get('reset_email');
+//
+//        $user = User::query()
+//            ->where('email' , $email)
+//            ->first();
+//        if (!is_null($email)){
+//            if (Hash::check($request['password'], $user->password)){
+//                return redirect()->back()->withErrors(['password' => 'The new password cannot be the same as the old password.']);
+//            }else {
+//                User::query()
+//                    ->update([
+//                        'password' => Hash::make($request['password']),
+//                    ]);
+//                ResetCodePassword::query()
+//                    ->where('email' , $email)
+//                    ->delete();
+//            }
+//        }else{
+//            return redirect()->back()->withErrors(['code' => 'you can not reset the password right now']);
+//
+//        }
+//        return redirect()->route('index')->with('status', 'New password has been set successfully. You can now log in.');
+//
+//    }
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
     //end test session
     /////////////////////////////////////////////////////////
 
 //the main api
 
+<<<<<<< HEAD
 //    public function forget_password(ForgetPasswordRequest $request)
 //    {
 //        $data = [];
@@ -264,6 +439,54 @@ class AuthController extends Controller
 //            return Response::Error($data , $message);
 //        }
 //    }
+=======
+    public function forget_password(ForgetPasswordRequest $request):JsonResponse
+    {
+        $data = [];
+        try {
+            $data = $this->userService->forget_password($request);
+            return Response::Success($data['user'] , $data['message']);
+        }catch(Exception $th){
+            $message = $th->getMessage();
+            return Response::Error($data , $message);
+        }
+    }
+    public function resend_code(ForgetPasswordRequest $request):JsonResponse
+    {
+        $data = [];
+        try {
+            $data = $this->userService->resend_code($request);
+            return Response::Success($data['user'] , $data['message']);
+        }catch(Exception $th){
+            $message = $th->getMessage();
+            return Response::Error($data , $message);
+        }
+    }
+
+    public function check_code(CheckCodeRequest $request):JsonResponse
+    {
+        $data = [];
+        try {
+            $data = $this->userService->check_code($request);
+            return Response::Success($data['code'] , $data['message']);
+        }catch(Exception $th){
+            $message = $th->getMessage();
+            return Response::Error($data , $message);
+        }
+    }
+
+    public function reset_password(ResetPasswordRequest $request):JsonResponse
+    {
+        $data = [];
+        try {
+            $data = $this->userService->reset_password($request);
+            return Response::Success($data['data'] , $data['message']);
+        }catch(Exception $th){
+            $message = $th->getMessage();
+            return Response::Error($data , $message);
+        }
+    }
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 
 
     public function redirect_to_google()
@@ -277,7 +500,11 @@ class AuthController extends Controller
         try {
             $data = $this->userService->google_handle_call_back();
             return Response::Success($data['data'] , $data['message']);
+<<<<<<< HEAD
         }catch(Throwable $th){
+=======
+        }catch(Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data , $message);
         }
@@ -294,12 +521,17 @@ class AuthController extends Controller
         try {
             $data = $this->userService->apple_handle_call_back();
             return Response::Success($data['data'] , $data['message']);
+<<<<<<< HEAD
         }catch(Throwable $th){
+=======
+        }catch(Exception $th){
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
             $message = $th->getMessage();
             return Response::Error($data , $message);
         }
     }
 
+<<<<<<< HEAD
     public function show_all_profiles(): JsonResponse
     {
         $data = [];
@@ -377,4 +609,7 @@ class AuthController extends Controller
             return Response::Error($data,$message);
         }
     }
+=======
+
+>>>>>>> 05e578ca1106e4e7f9d0b835346a7eddcc967ac8
 }
